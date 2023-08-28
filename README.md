@@ -2,7 +2,7 @@
 
 ## Introduction
 
-* Puppet is a declrative language, as in, you define the state of a machine
+* Puppet is a declarative language, as in, you define the state of a machine
 beforehand.
 * Puppet comprises resource types (files, package, user, group, service).
 * Each resource type has providers (for eg, package has yum, apt, etc) that helps
@@ -34,7 +34,6 @@ sysadmin
 └── manifests
     └── init.pp
 ```
-* 
 
 ## Puppet Agent & Server
 
@@ -48,4 +47,42 @@ by executing `puppet cert --list`. For approving, run `puppet cert --sign <name
 of the cert>`.
 * `puppet cert --list --all` - to list all signed/unsigned certs.
 * `puppet cert --print puppet.localdomain` - to show details about the cert.
+
+## Puppet certs
+You may sometime run into puppet cert issues and there coule be number of reasons
+for it. It may have to do with puppet agent and server machine's clocks are out
+of sync or cert mismatch or agent has been rebuilt. Therefore, best pratcice is 
+to remove certs from server and agent.
+
+* `puppet cert clean <agent-cert-name>`  - on server
+* `puppet config print ssldir` - on agent
+* `rm -rf *`
+* `puppet agent -t`
+* `puppet cert --list`
+* `puppet cert --sign agent.localdomain`
+
+## Facter
+* Used by agent & server to determine state or configuring resources on the agent node.
+* `facter` executed on the agent results in a bunch of information about the agent.
+* `facter operatingsystem` or `facter osfamily` are one of the few keys/facts
+about the host.
+* Once SSL negotiation happens between server and the agent, agent gathers data
+about itself via facter and sends it over to the server.
+* Server recieves it and complies the catalog to the agent. Agent compares 
+against its current state, applies it & sends the report to the server.
+* Puppet agent uses RAL to compare the current state and applies changes where
+drift is detected.
+
+## Classification
+* Specifies which node should have whch classes.
+* Can be configured via site.pp in /manifests directory.
+* Puppet reads this manifest.
+```
+node "host.something.awesome" {
+  include webserver
+  include database
+}
+```
+* `puppet module list` - shows all the modules configuration
+* `puppet config print manifest`
 
